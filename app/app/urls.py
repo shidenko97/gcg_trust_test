@@ -16,6 +16,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from app.views import PixelsListView
+
 urlpatterns = [
+    path("", PixelsListView.as_view()),
     path('admin/', admin.site.urls),
 ]

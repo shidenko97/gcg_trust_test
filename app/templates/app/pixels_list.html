@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Pixels</h1>
+
+    <table class="table">
+        <tr>
+            <th>Event time</th>
+            <th>Client name</th>
+            <th>Action</th>
+            <th>Amount</th>
+            <th>Currency</th>
+            <th>Country</th>
+            <th>Affiliate ID</th>
+        </tr>
+        {% for row in object_list %}
+            <tr>
+                <td>{{ row.event_time }}</td>
+                <td>{{ row.get_client_name }}</td>
+                <td>{{ row.action }}</td>
+                <td>{{ row.get_amount }}</td>
+                <td>{{ row.currency }}</td>
+                <td>{{ row.country }}</td>
+                <td>{{ row.affiliateId }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <nav aria-label="Pixels navigation">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link"
+                   href="?page={{ page_obj.previous_page_number }}"
+                >
+                    &laquo;
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page=1">1</a>
+            </li>
+            {% endif %}
+            <li class="page-item active">
+                <a class="page-link"
+                   href="?page={{ page_obj.number }}"
+                >
+                    {{ page_obj.number }}
+                </a>
+            </li>
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link"
+                       href="?page={{ page_obj.paginator.num_pages }}"
+                    >
+                        {{ page_obj.paginator.num_pages }}
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link"
+                       href="?page={{ page_obj.next_page_number }}"
+                    >
+                        &raquo;
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endblock %}
