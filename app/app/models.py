@@ -27,17 +27,29 @@ class Pixels(models.Model):
     affparams3 = models.CharField(max_length=256)
     affparams4 = models.CharField(max_length=256)
 
-    def get_client_name(self):
+    def get_client_name(self) -> str:
         """Return client fullname or N/A if not exists"""
 
         client_name = f"{self.first_name} {self.last_name}"
 
         return client_name if client_name.strip() else "N/A"
 
-    def get_amount(self):
+    def get_amount(self) -> int:
         """Return amount or 0 if not exists"""
 
         return self.amount if self.amount else 0
+
+    @classmethod
+    def get_actions(cls):
+        """Get all actions of pixels"""
+
+        return cls.objects.values_list("action", flat=True).distinct()
+
+    @classmethod
+    def get_countries(cls):
+        """Get all countries of pixels"""
+
+        return cls.objects.values_list("country", flat=True).distinct()
 
     class Meta:
         db_table = "pixels"

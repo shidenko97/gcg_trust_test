@@ -3,6 +3,122 @@
 {% block content %}
     <h1>Pixels</h1>
 
+    <form method="GET"
+          action="?page={{ page_obj.number }}"
+          class="filters row"
+          style="margin-top: 15px; margin-bottom: 15px;"
+    >
+        <div class="col-3">
+            <label for="action">Action</label>
+            <select id="action-filter" name="action">
+                <option value="">All</option>
+                {% for action in actions %}
+                    <option value="{{ action }}"
+                            {% if action == selected_action %}
+                                selected
+                            {% endif %}
+                    >{{ action }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-3">
+            <label for="countries">Countries</label>
+            <select id="country-filter"
+                    multiple data-live-search="true"
+                    name="countries"
+            >
+                {% for country in countries %}
+                    <option value="{{ country }}"
+                            {% if country in selected_countries %}
+                                selected
+                            {% endif %}
+                    >{{ country }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-2">
+            <label for="date_from">Date from</label>
+            <input type="date"
+                   value="{{ date_from }}"
+                   name="date_from"
+                   class="form-control"
+            >
+        </div>
+        <div class="col-2">
+            <label for="date_to">Date to</label>
+            <input type="date"
+                   value="{{ date_to }}"
+                   name="date_to"
+                   class="form-control"
+            >
+        </div>
+        <div class="col-2">
+            <input type="submit"
+                   value="Filter"
+                   style="width: 100%; margin-top: 30px;"
+                   class="btn btn-success"
+            >
+        </div>
+    </form>
+
+    <div class="row" style="margin-bottom: 10px;">
+        <div class="col-2">
+            <button class="btn btn-outline-primary"
+                    onclick="redirectWithParams({
+                            date_from: '{{ today }}',
+                            date_to: '{{ tomorrow }}',
+                            page: 1
+                    });"
+            >
+                Today
+            </button>
+        </div>
+        <div class="col-2">
+            <button class="btn btn-outline-primary"
+                    onclick="redirectWithParams({
+                            date_from: '{{ yesterday }}',
+                            date_to: '{{ today }}',
+                            page: 1
+                    });"
+            >
+                Yesterday
+            </button>
+        </div>
+        <div class="col-2">
+            <button class="btn btn-outline-primary"
+                    onclick="redirectWithParams({
+                            date_from: '{{ last_week }}',
+                            date_to: '{{ today }}',
+                            page: 1
+                    });"
+            >
+                Last week
+            </button>
+        </div>
+        <div class="col-2">
+            <button class="btn btn-outline-primary"
+                    onclick="redirectWithParams({
+                            date_from: '{{ last_month }}',
+                            date_to: '{{ today }}',
+                            page: 1
+                    });"
+            >
+                Last month
+            </button>
+        </div>
+        <div class="col-2">
+            <button class="btn btn-outline-primary"
+                    onclick="redirectWithParams({
+                            date_from: '{{ last_year }}',
+                            date_to: '{{ today }}',
+                            page: 1
+                    });"
+            >
+                Last year
+            </button>
+        </div>
+    </div>
+
     <table class="table">
         <tr>
             <th>Event time</th>
@@ -21,7 +137,15 @@
                 <td>{{ row.get_amount }}</td>
                 <td>{{ row.currency }}</td>
                 <td>{{ row.country }}</td>
-                <td>{{ row.affiliateId }}</td>
+                <td>
+                    <a href="#"
+                       onclick="redirectWithParams({
+                        affiliateId: '{{ row.affiliateId }}',
+                        page: 1
+                    });">
+                        {{ row.affiliateId }}
+                    </a>
+                </td>
             </tr>
         {% endfor %}
     </table>
@@ -31,18 +155,28 @@
             {% if page_obj.has_previous %}
             <li class="page-item">
                 <a class="page-link"
-                   href="?page={{ page_obj.previous_page_number }}"
+                   onclick="redirectWithParams({
+                           page: {{ page_obj.previous_page_number }}
+                   })"
                 >
                     &laquo;
                 </a>
             </li>
             <li class="page-item">
-                <a class="page-link" href="?page=1">1</a>
+                <a class="page-link"
+                   onclick="redirectWithParams({
+                           page: 1
+                   })"
+                >
+                    1
+                </a>
             </li>
             {% endif %}
             <li class="page-item active">
                 <a class="page-link"
-                   href="?page={{ page_obj.number }}"
+                   onclick="redirectWithParams({
+                           page: {{ page_obj.number }}
+                   })"
                 >
                     {{ page_obj.number }}
                 </a>
@@ -50,14 +184,18 @@
             {% if page_obj.has_next %}
                 <li class="page-item">
                     <a class="page-link"
-                       href="?page={{ page_obj.paginator.num_pages }}"
+                       onclick="redirectWithParams({
+                               page: {{ page_obj.paginator.num_pages }}
+                       })"
                     >
                         {{ page_obj.paginator.num_pages }}
                     </a>
                 </li>
                 <li class="page-item">
                     <a class="page-link"
-                       href="?page={{ page_obj.next_page_number }}"
+                       onclick="redirectWithParams({
+                               page: {{ page_obj.next_page_number }}
+                       })"
                     >
                         &raquo;
                     </a>
@@ -65,4 +203,53 @@
             {% endif %}
         </ul>
     </nav>
+
+    <script>
+        $("#country-filter, #action-filter").selectpicker();
+
+        $('input[type="date"]').datepicker({
+            clearBtn: true,
+            format: "yyyy-mm-dd",
+            autoclose: true
+        });
+
+        $('.filters').submit(function() {
+
+            let form_data = $(".filters").serializeArray().reduce(
+                function(obj, item) {
+                    if (!(item.name in obj))
+                        obj[item.name] = [];
+                    obj[item.name].push(item.value);
+                    return obj;
+                },
+                {}
+            );
+
+            form_data["page"] = 1;
+
+            redirectWithParams(form_data);
+            return false;
+        });
+
+        function redirectWithParams(obj = {}) {
+
+            let urlParams = {};
+
+            const queryString = window.location.search;
+
+            for(const entry of new URLSearchParams(queryString).entries()) {
+                urlParams[entry[0]] = entry[1];
+            }
+
+            const data = Object.assign(urlParams, obj);
+
+            let string_url = Object.keys(data).map(function(key) {
+              return key + '=' + data[key];
+            }).join('&');
+
+            window.location.href = "?" + string_url;
+
+        }
+
+    </script>
 {% endblock %}
