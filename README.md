@@ -49,6 +49,7 @@ The following environment variables are *required*:
 
 | Name              | Purpose                                          |
 |-------------------|--------------------------------------------------|
+| `ALLOWED_HOSTS`   | Application hostnames                            |
 | `DB_DRIVER`       | Engine for connecting to db.                     |
 | `DB_NAME`         | The database name.                               |
 | `DB_USER`         | The database user.                               |
